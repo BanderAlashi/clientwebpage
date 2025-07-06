@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointments</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{{ url_for('static', filename='background.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        /* Sidebar container */
+        .sidebar {
+            width: 220px;
+            background-color: #336699; /* lighter blue than logo */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .sidebar .logo-section {
+            background-color: #00264d; /* even darker blue for capsule */
+            padding: 8px 20px;
+            border-radius: 30px;       /* capsule shape */
+            margin: 0 auto 20px auto;  /* center horizontally, bottom margin */
+            display: flex;
+            align-items: center;
+            width: fit-content;        /* width tight to content */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .sidebar .logo-section img {
+            height: 35px;
+            margin-right: 10px;
+        }
+
+        .sidebar .logo-section span {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* Sidebar nav links */
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            padding-left: 0;
+        }
+
+        .sidebar nav a {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            border-left: 5px solid transparent;
+            transition: background-color 0.3s, border-left-color 0.3s;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background-color: #003366;
+            border-left-color: #ffcc00;
+        }
+
+        /* Main content area */
+        .content {
+            margin-left: 220px; /* same width as sidebar */
+            padding: 40px 30px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #004080;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #004080;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e6f2ff;
+        }
+
+        /* New Appointment button */
+        .new-appointment-btn {
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004080;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+        }
+
+        .new-appointment-btn:hover {
+            background-color: #003366;
+        }
+
+        /* Cancel button */
+        button.cancel-btn {
+            padding: 6px 10px;
+            background-color: #ff4d4d;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button.cancel-btn:hover {
+            background-color: #cc0000;
+        }
+
+        em {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="logo-section">
+            <img src="{{ url_for('static', filename='favicon.ico') }}" alt="Logo">
+            <span>Alashi Clinic</span>
+        </a>
+        <nav>
+            <a href="/patients" class="{{ 'active' if request.path.startswith('/patients') else '' }}">Patients</a>
+            <a href="/appointments" class="{{ 'active' if request.path.startswith('/appointments') else '' }}">Appointments</a>
+            <a href="/reports" class="{{ 'active' if request.path.startswith('/reports') else '' }}">View Reports</a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <h1>All Appointments</h1>
+
+        <a href="{{ url_for('make_appointment') }}" class="new-appointment-btn">+ New Appointment</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>DateTime</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for a in appointments %}
+                <tr>
+                    <td>{{ a[0] }}</td>
+                    <td>{{ a[2] }}</td> <!-- Patient Name -->
+                    <td>{{ a[3] }}</td> <!-- Doctor Name -->
+                    <td>{{ a[4].strftime('%Y-%m-%d %H:%M') if a[4] else '' }}</td> <!-- Formatted DateTime -->
+                    <td>{{ a[5] }}</td> <!-- Status -->
+                    <td>
+                        {% if a[5] == 'Scheduled' %}
+                        <form action="{{ url_for('cancel_appointment', app_id=a[0]) }}" method="post" style="display:inline;">
+                            <button
+                                type="submit"
+                                class="cancel-btn"
+                                onclick="return confirm('Are you sure you want to cancel this appointment?');"
+                                aria-label="Cancel appointment {{ a[0] }}"
+                                title="Cancel appointment"
+                            >Cancel</button>
+                        </form>
+                        {% elif a[5] == 'Canceled' %}
+                            <em>Canceled</em>
+                        {% elif a[5] == 'Completed' %}
+                            <em>Completed</em>
+                        {% else %}
+                            <em>{{ a[5] }}</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

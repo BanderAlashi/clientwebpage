@@ -1,0 +1,42 @@
+CREATE DATABASE clinic_db;
+USE clinic_db;
+
+CREATE TABLE Patient (
+    PID INT PRIMARY KEY AUTO_INCREMENT,
+    CID VARCHAR(20) UNIQUE NOT NULL,
+    Name VARCHAR(100),
+    Gender VARCHAR(10),
+    ContactNumber VARCHAR(15)
+);
+
+CREATE TABLE Doctor (
+    DID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100),
+    Specialization VARCHAR(100),
+    ContactNumber VARCHAR(15)
+);
+
+CREATE TABLE Appointment (
+    AppID INT PRIMARY KEY AUTO_INCREMENT,
+    PID INT,
+    DID INT,
+    DateTime DATETIME,
+    Status VARCHAR(50),
+    FOREIGN KEY (PID) REFERENCES Patient(PID),
+    FOREIGN KEY (DID) REFERENCES Doctor(DID)
+);
+
+CREATE TABLE Diagnoses (
+    DiagnosisCode VARCHAR(20) PRIMARY KEY,
+    DiagnosisName VARCHAR(100),
+    Symptoms TEXT
+);
+
+CREATE TABLE Report (
+    ReportID INT PRIMARY KEY AUTO_INCREMENT,
+    AppID INT,
+    DiagnosisCode VARCHAR(20),
+    Description TEXT,
+    FOREIGN KEY (AppID) REFERENCES Appointment(AppID),
+    FOREIGN KEY (DiagnosisCode) REFERENCES Diagnoses(DiagnosisCode)
+);

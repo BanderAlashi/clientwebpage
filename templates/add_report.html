@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Report</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{{ url_for('static', filename='background.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        /* Sidebar container */
+        .sidebar {
+            width: 220px;
+            background-color: #336699;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .sidebar .logo-section {
+            background-color: #00264d;
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            width: fit-content;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .sidebar .logo-section img {
+            height: 35px;
+            margin-right: 10px;
+        }
+
+        .sidebar .logo-section span {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            padding-left: 0;
+        }
+
+        .sidebar nav a {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            border-left: 5px solid transparent;
+            transition: background-color 0.3s, border-left-color 0.3s;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: #003366;
+            border-left-color: #ffcc00;
+        }
+
+        /* Main content */
+        .content {
+            margin-left: 220px;
+            padding: 40px 30px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #004080;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        input[type="submit"] {
+            background: #004080;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        input[type="submit"]:hover {
+            background: #003366;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="logo-section">
+            <img src="{{ url_for('static', filename='favicon.ico') }}" alt="Logo">
+            <span>Alashi Clinic</span>
+        </a>
+        <nav>
+            <a href="/patients" class="{{ 'active' if request.path.startswith('/patients') else '' }}">Patients</a>
+            <a href="/appointments" class="{{ 'active' if request.path.startswith('/appointments') else '' }}">Appointments</a>
+            <a href="/reports" class="{{ 'active' if request.path.startswith('/reports') else '' }}">View Reports</a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <h1>Add Diagnosis Report</h1>
+
+        <form method="post">
+            <select name="app_id" required>
+                <option value="">Select Appointment</option>
+                {% for a in appointments %}
+                    <option value="{{ a[0] }}">{{ a[1] }} with Dr. {{ a[2] }} at {{ a[3] }}</option>
+                {% endfor %}
+            </select>
+            <select name="diagnosis_code" required>
+                <option value="">Select Diagnosis</option>
+                {% for d in diagnoses %}
+                    <option value="{{ d[0] }}">{{ d[0] }} - {{ d[1] }}</option>
+                {% endfor %}
+            </select>
+            <textarea name="description" placeholder="Diagnosis Details" rows="4" required></textarea>
+            <input type="submit" value="Submit Report">
+        </form>
+    </div>
+
+</body>
+</html>
